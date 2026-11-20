@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 
 const YEAR = 2026;
-const MONTHLY_GOAL = 100;
-const ANNUAL_GOAL = MONTHLY_GOAL * 12;
-const STORAGE_KEY = `samksboyapp-investments-${YEAR}`;
+const DEFAULT_MONTHLY_GOAL = 100;
+const DEFAULT_ANNUAL_GOAL = 1200;
+const GOALS_STORAGE_KEY = "samksboyapp-investment-goals";
 
+const MONTHLY_GOAL = DEFAULT_MONTHLY_GOAL;
+const ANNUAL_GOAL = DEFAULT_ANNUAL_GOAL;
 const MONTHS = [
   "Janeiro",
   "Fevereiro",
