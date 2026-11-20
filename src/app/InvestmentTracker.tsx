@@ -1,14 +1,16 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 
 const YEAR = 2026;
+
 const DEFAULT_MONTHLY_GOAL = 100;
 const DEFAULT_ANNUAL_GOAL = 1200;
+
+const STORAGE_KEY = `samksboyapp-investments-${YEAR}`;
 const GOALS_STORAGE_KEY = "samksboyapp-investment-goals";
 
-const MONTHLY_GOAL = DEFAULT_MONTHLY_GOAL;
-const ANNUAL_GOAL = DEFAULT_ANNUAL_GOAL;
 const MONTHS = [
   "Janeiro",
   "Fevereiro",
@@ -26,11 +28,44 @@ const MONTHS = [
 
 type InvestmentRecords = Record<string, number>;
 
+type InvestmentGoals = {
+  monthlyGoal: number;
+  annualGoal: number;
+};
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
   }).format(value);
+}
+
+function parseAmount(input: string): number | null {
+  const text = input.trim();
+
+  if (!text) return null;
+
+  let normalized = text;
+
+  if (text.includes(",")) {
+    normalized = text.replace(/\./g, "").replace(",", ".");
+  }
+
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
+    return null;
+  }
+
+  const value = Number(normalized);
+
+  if (
+    !Number.isFinite(value) ||
+    value <= 0 ||
+    value > 1000000000
+  ) {
+    return null;
+  }
+
+  return value;
 }
 
 export default function InvestmentTracker() {
@@ -41,8 +76,24 @@ export default function InvestmentTracker() {
     useState<number | null>(null);
 
   const [amount, setAmount] = useState("100");
+
+  const [monthlyGoal, setMonthlyGoal] = useState(
+    DEFAULT_MONTHLY_GOAL
+  );
+
+  const [annualGoal, setAnnualGoal] = useState(
+    DEFAULT_ANNUAL_GOAL
+  );
+
+  const [monthlyGoalInput, setMonthlyGoalInput] =
+    useState("100");
+
+  const [annualGoalInput, setAnnualGoalInput] =
+    useState("1200");
+
   const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState("");
+  const [goalMessage, setGoalMessage] = useState("");
 
   useEffect(() => {
     try {
@@ -81,6 +132,44 @@ export default function InvestmentTracker() {
       console.error("Erro ao carregar investimentos:", error);
     }
 
+    try {
+      const savedGoals = localStorage.getItem(
+        GOALS_STORAGE_KEY
+      );
+
+      if (savedGoals) {
+        const parsed: unknown = JSON.parse(savedGoals);
+
+        if (
+          parsed !== null &&
+          typeof parsed === "object" &&
+          !Array.isArray(parsed)
+        ) {
+          const goals = parsed as Partial<InvestmentGoals>;
+
+          if (
+            typeof goals.monthlyGoal === "number" &&
+            Number.isFinite(goals.monthlyGoal) &&
+            goals.monthlyGoal > 0
+          ) {
+            setMonthlyGoal(goals.monthlyGoal);
+            setMonthlyGoalInput(String(goals.monthlyGoal));
+          }
+
+          if (
+            typeof goals.annualGoal === "number" &&
+            Number.isFinite(goals.annualGoal) &&
+            goals.annualGoal > 0
+          ) {
+            setAnnualGoal(goals.annualGoal);
+            setAnnualGoalInput(String(goals.annualGoal));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao carregar metas:", error);
+    }
+
     setLoaded(true);
   }, []);
 
@@ -90,13 +179,52 @@ export default function InvestmentTracker() {
   );
 
   const monthsCompleted = Object.values(investments).filter(
-    (value) => value >= MONTHLY_GOAL
+    (value) => value >= monthlyGoal
   ).length;
 
   const progress = Math.min(
-    (totalInvested / ANNUAL_GOAL) * 100,
+    (totalInvested / annualGoal) * 100,
     100
   );
+
+  const remaining = Math.max(
+    annualGoal - totalInvested,
+    0
+  );
+
+  function saveGoals() {
+    const newMonthlyGoal = parseAmount(monthlyGoalInput);
+    const newAnnualGoal = parseAmount(annualGoalInput);
+
+    if (
+      newMonthlyGoal === null ||
+      newAnnualGoal === null
+    ) {
+      setGoalMessage(
+        "Informe valores positivos válidos, com até duas casas decimais."
+      );
+      return;
+    }
+
+    const updatedGoals: InvestmentGoals = {
+      monthlyGoal: newMonthlyGoal,
+      annualGoal: newAnnualGoal,
+    };
+
+    try {
+      localStorage.setItem(
+        GOALS_STORAGE_KEY,
+        JSON.stringify(updatedGoals)
+      );
+
+      setMonthlyGoal(newMonthlyGoal);
+      setAnnualGoal(newAnnualGoal);
+      setGoalMessage("Metas atualizadas com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar metas:", error);
+      setGoalMessage("Não foi possível salvar as metas.");
+    }
+  }
 
   function openMonth(monthIndex: number) {
     setSelectedMonth(monthIndex);
@@ -106,7 +234,7 @@ export default function InvestmentTracker() {
     setAmount(
       savedValue !== undefined
         ? String(savedValue)
-        : String(MONTHLY_GOAL)
+        : String(monthlyGoal)
     );
 
     setMessage("");
@@ -115,18 +243,11 @@ export default function InvestmentTracker() {
   function saveInvestment() {
     if (selectedMonth === null) return;
 
-    const normalized = amount.trim().replace(",", ".");
-    const value = Number(normalized);
+    const value = parseAmount(amount);
 
-    if (
-      normalized === "" ||
-      !Number.isFinite(value) ||
-      value <= 0 ||
-      value > 1000000000 ||
-      !/^\d+(\.\d{1,2})?$/.test(normalized)
-    ) {
+    if (value === null) {
       setMessage(
-        "Informe um valor positivo, com até duas casas decimais."
+        "Informe um valor positivo válido, com até duas casas decimais."
       );
       return;
     }
@@ -147,7 +268,7 @@ export default function InvestmentTracker() {
       setMessage("");
     } catch (error) {
       console.error("Erro ao salvar investimento:", error);
-      setMessage("Não foi possível salvar o registro.");
+      setMessage("Não foi possível salvar o aporte.");
     }
   }
 
@@ -169,7 +290,7 @@ export default function InvestmentTracker() {
       setMessage("");
     } catch (error) {
       console.error("Erro ao remover investimento:", error);
-      setMessage("Não foi possível remover o registro.");
+      setMessage("Não foi possível remover o aporte.");
     }
   }
 
@@ -186,7 +307,7 @@ export default function InvestmentTracker() {
           </h3>
 
           <p className="mt-2 text-sm text-zinc-500">
-            Acompanhe seus aportes mensais e sua meta anual.
+            Acompanhe seus aportes e personalize suas metas.
           </p>
         </div>
 
@@ -207,7 +328,7 @@ export default function InvestmentTracker() {
             META MENSAL
           </p>
           <p className="mt-3 text-2xl font-light">
-            {formatCurrency(MONTHLY_GOAL)}
+            {formatCurrency(monthlyGoal)}
           </p>
         </div>
 
@@ -216,7 +337,7 @@ export default function InvestmentTracker() {
             META ANUAL
           </p>
           <p className="mt-3 text-2xl font-light">
-            {formatCurrency(ANNUAL_GOAL)}
+            {formatCurrency(annualGoal)}
           </p>
         </div>
 
@@ -228,6 +349,84 @@ export default function InvestmentTracker() {
             {loaded ? `${monthsCompleted}/12` : "—"}
           </p>
         </div>
+      </div>
+
+      <div className="mb-6 border border-white/10 bg-[#141414] p-6">
+        <p className="text-xs tracking-[0.2em] text-zinc-500">
+          CUSTOM FINANCIAL GOALS
+        </p>
+
+        <h4 className="mt-3 text-xl font-light">
+          Personalizar metas
+        </h4>
+
+        <p className="mt-2 text-sm text-zinc-500">
+          Escolha livremente suas metas mensal e anual.
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div>
+            <label
+              htmlFor="monthly-goal"
+              className="block text-xs text-zinc-400"
+            >
+              Meta mensal (R$)
+            </label>
+
+            <input
+              id="monthly-goal"
+              type="text"
+              inputMode="decimal"
+              value={monthlyGoalInput}
+              onChange={(event) => {
+                setMonthlyGoalInput(event.target.value);
+                setGoalMessage("");
+              }}
+              className="mt-3 w-full border border-white/20 bg-black p-3 text-white outline-none focus:border-white/60"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="annual-goal"
+              className="block text-xs text-zinc-400"
+            >
+              Meta anual (R$)
+            </label>
+
+            <input
+              id="annual-goal"
+              type="text"
+              inputMode="decimal"
+              value={annualGoalInput}
+              onChange={(event) => {
+                setAnnualGoalInput(event.target.value);
+                setGoalMessage("");
+              }}
+              className="mt-3 w-full border border-white/20 bg-black p-3 text-white outline-none focus:border-white/60"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={saveGoals}
+          disabled={!loaded}
+          className="mt-5 bg-white px-6 py-3 text-sm font-medium text-black transition hover:bg-zinc-300 disabled:opacity-50"
+        >
+          Salvar metas
+        </button>
+
+        {goalMessage && (
+          <p className="mt-4 text-sm text-zinc-300" role="status">
+            {goalMessage}
+          </p>
+        )}
+
+        <p className="mt-4 text-xs text-zinc-600">
+          Alterar suas metas não modifica os aportes registrados.
+          Os dois valores são configurados independentemente.
+        </p>
       </div>
 
       <div className="border border-white/10 bg-[#141414] p-6">
@@ -244,22 +443,30 @@ export default function InvestmentTracker() {
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#292929]">
           <div
             className="h-full rounded-full bg-emerald-600 transition-all"
-            style={{ width: `${loaded ? progress : 0}%` }}
+            style={{
+              width: `${loaded ? progress : 0}%`,
+            }}
           />
         </div>
 
-        <p className="mt-3 text-xs text-zinc-500">
-          O progresso é limitado visualmente a 100%.
-          Aportes acima da meta continuam somando ao total.
+        <p className="mt-4 text-xs text-zinc-500">
+          Falta para a meta: {formatCurrency(remaining)}
+        </p>
+
+        <p className="mt-2 text-xs text-zinc-600">
+          O progresso visual é limitado a 100%.
+          Aportes acima da meta continuam no total.
         </p>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {MONTHS.map((month, index) => {
           const recorded = investments[String(index)];
+
           const hasRecord = recorded !== undefined;
+
           const goalReached =
-            hasRecord && recorded >= MONTHLY_GOAL;
+            hasRecord && recorded >= monthlyGoal;
 
           return (
             <button
@@ -273,7 +480,10 @@ export default function InvestmentTracker() {
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium">{month}</p>
+                <p className="text-sm font-medium">
+                  {month}
+                </p>
+
                 <span
                   className={
                     goalReached
@@ -281,7 +491,11 @@ export default function InvestmentTracker() {
                       : "text-zinc-500"
                   }
                 >
-                  {goalReached ? "✓" : hasRecord ? "◐" : "○"}
+                  {goalReached
+                    ? "✓"
+                    : hasRecord
+                      ? "◐"
+                      : "○"}
                 </span>
               </div>
 
@@ -325,8 +539,9 @@ export default function InvestmentTracker() {
             type="text"
             inputMode="decimal"
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            placeholder="100,00"
+            onChange={(event) =>
+              setAmount(event.target.value)
+            }
             className="mt-3 w-full max-w-xs border border-white/20 bg-black p-3 text-white outline-none focus:border-white/60"
           />
 
@@ -340,7 +555,7 @@ export default function InvestmentTracker() {
             <button
               type="button"
               onClick={saveInvestment}
-              className="bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-zinc-300"
+              className="bg-white px-5 py-3 text-sm font-medium text-black hover:bg-zinc-300"
             >
               Salvar aporte
             </button>
@@ -369,10 +584,10 @@ export default function InvestmentTracker() {
         </div>
       )}
 
-      <p className="mt-5 text-xs text-zinc-600">
-        Os valores são registros manuais de aportes, não
-        representam o saldo atual nem a rentabilidade dos
-        investimentos. Os dados são salvos neste navegador.
+      <p className="mt-5 text-xs leading-6 text-zinc-600">
+        Os registros representam aportes manuais, não o saldo
+        atual ou a rentabilidade dos investimentos.
+        Os dados permanecem armazenados neste navegador.
       </p>
     </section>
   );
