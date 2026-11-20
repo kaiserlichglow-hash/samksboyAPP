@@ -1,69 +1,158 @@
-import Image from "next/image";
+"use client";
 
+import { useState } from "react";
+
+const habits = [
+  "Treino concluído",
+  "Sono regulado",
+  "Investimento mensal",
+  "Disciplina diária",
+];
 export default function Home() {
+  const [completed, setCompleted] = useState<string[]>([]);
+
+  function toggleHabit(habit: string) {
+    setCompleted((previous) =>
+      previous.includes(habit)
+        ? previous.filter((item) => item !== habit)
+        : [...previous, habit]
+    );
+  }
+
+  const metrics = [
+    {
+      label: "TREINO HOJE",
+      value: completed.includes("Treino concluído") ? "01" : "00",
+      detail: "Sessões marcadas hoje",
+    },
+    {
+      label: "SONO",
+      value: "--",
+      detail: "Aguardando registro",
+    },
+    {
+      label: "INVESTIMENTOS",
+      value: "R$ 0",
+      detail: "Aguardando registros",
+    },
+    {
+      label: "DISCIPLINA",
+      value: `${completed.length}/4`,
+      detail: "Hábitos concluídos",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-[#090909] text-zinc-100">
+      <div className="mx-auto max-w-7xl px-5 py-8 md:px-10">
+        <header className="flex flex-wrap items-center justify-between gap-6 border-b border-white/10 pb-8">
+          <div>
+            <p className="text-xs tracking-[0.3em] text-zinc-500">
+              PERSONAL PERFORMANCE SYSTEM
+            </p>
+            <h1 className="mt-3 text-2xl font-semibold tracking-[0.2em]">
+              SAMKS <span className="text-zinc-500">BOY</span>
+            </h1>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-zinc-500">SYSTEM STATUS</p>
+            <p className="mt-2 text-sm text-emerald-400">
+              ● OPERATIONAL
+            </p>
+          </div>
+        </header>
+
+        <section className="py-12">
+          <p className="text-xs tracking-[0.3em] text-zinc-500">
+            PERSONAL DASHBOARD
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <h2 className="mt-4 text-3xl font-light md:text-5xl">
+            Controle sua <strong>evolução.</strong>
+          </h2>
+          <p className="mt-4 text-sm text-zinc-500">
+            Consistência não é uma opção. É um padrão.
+          </p>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {metrics.map((metric) => (
+            <div
+              key={metric.label}
+              className="border border-white/10 bg-[#141414] p-6"
+            >
+              <p className="text-xs tracking-[0.2em] text-zinc-500">
+                {metric.label}
+              </p>
+              <p className="mt-5 text-3xl font-light">
+                {metric.value}
+              </p>
+              <p className="mt-2 text-xs text-zinc-600">
+                {metric.detail}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-7 grid gap-5 lg:grid-cols-3">
+          <div className="border border-white/10 bg-[#141414] p-6 lg:col-span-2">
+            <p className="text-xs tracking-[0.2em] text-zinc-500">
+              DAILY PROTOCOL
+            </p>
+            <h3 className="mt-3 text-xl">Disciplina diária</h3>
+
+            <div className="mt-7 space-y-3">
+              {habits.map((habit) => {
+                const active = completed.includes(habit);
+
+                return (
+                  <button
+                    type="button"
+                    key={habit}
+                    onClick={() => toggleHabit(habit)}
+                    className={`flex w-full items-center justify-between gap-3 border p-4 text-left text-sm transition ${
+                      active
+                        ? "border-emerald-500/40 bg-emerald-500/5"
+                        : "border-white/10 bg-[#0b0b0b] hover:border-white/30"
+                    }`}
+                  >
+                    <span>{habit}</span>
+                    <span
+                      className={
+                        active ? "text-emerald-400" : "text-zinc-500"
+                      }
+                    >
+                      {active ? "✓ CONCLUÍDO" : "○ PENDENTE"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border border-white/10 bg-[#141414] p-6">
+            <p className="text-xs tracking-[0.2em] text-zinc-500">
+              SYSTEM PRINCIPLE
+            </p>
+            <p className="mt-10 text-5xl font-light">01</p>
+            <h3 className="mt-6 text-xl">Consistency.</h3>
+            <p className="mt-4 text-sm leading-7 text-zinc-500">
+              Pequenas ações executadas diariamente
+              constroem resultados extraordinários.
+            </p>
+            <div className="mt-10 border-t border-white/10 pt-5">
+              <p className="text-xs text-zinc-600">
+                SAMKS BOY APP / PRIVATE SYSTEM
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <footer className="mt-12 border-t border-white/10 py-6 text-center text-xs tracking-widest text-zinc-600">
+          SAMKS BOY APP — DISCIPLINE IS THE STANDARD
+        </footer>
+      </div>
+    </main>
   );
 }
+
+
