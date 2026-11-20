@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import WorkoutCalendar from "./WorkoutCalendar";
 const habits = [
   "Treino concluído",
   "Sono regulado",
@@ -146,7 +146,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
+<WorkoutCalendar />
         <footer className="mt-12 border-t border-white/10 py-6 text-center text-xs tracking-widest text-zinc-600">
           SAMKS BOY APP — DISCIPLINE IS THE STANDARD
         </footer>
