@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -162,13 +161,14 @@ export default function Home() {
           </div>
         </header>
 
+       
         <section className="mt-8">
           <Link
             href="/chess"
-            className="group flex items-center justify-between gap-4 border border-white/10 bg-[#141414] p-5 transition hover:border-emerald-500/50 hover:bg-[#1a1a1a]"
+            className="group flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-[#141414]/90 p-5 shadow-lg shadow-black/20 backdrop-blur-xl transition hover:border-emerald-500/50 hover:bg-[#1a1a1a]"
           >
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-white/10 bg-black text-3xl">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-black text-3xl">
                 ♞
               </div>
 
@@ -176,11 +176,9 @@ export default function Home() {
                 <p className="text-xs tracking-[0.2em] text-zinc-500">
                   CHESS ARENA
                 </p>
-
                 <h3 className="mt-2 text-lg font-medium">
                   Jogar xadrez
                 </h3>
-
                 <p className="mt-1 text-xs text-zinc-500">
                   Desafie o computador em três níveis.
                 </p>
@@ -209,7 +207,7 @@ export default function Home() {
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="border border-white/10 bg-[#141414] p-6"
+              className="rounded-3xl border border-white/10 bg-[#141414]/90 p-6 shadow-lg shadow-black/20 backdrop-blur-xl"
             >
               <p className="text-xs tracking-[0.2em] text-zinc-500">
                 {metric.label}
@@ -225,7 +223,7 @@ export default function Home() {
         </section>
 
         <section className="mt-7 grid gap-5 lg:grid-cols-3">
-          <div className="border border-white/10 bg-[#141414] p-6 lg:col-span-2">
+          <div className="rounded-3xl border border-white/10 bg-[#141414]/90 p-6 shadow-lg shadow-black/20 backdrop-blur-xl lg:col-span-2">
             <p className="text-xs tracking-[0.2em] text-zinc-500">
               DAILY PROTOCOL
             </p>
@@ -240,11 +238,13 @@ export default function Home() {
                     type="button"
                     key={habit}
                     onClick={() => toggleHabit(habit)}
-                    className={`flex w-full items-center justify-between gap-3 border p-4 text-left text-sm transition ${
-                      active
-                        ? "border-emerald-500/40 bg-emerald-500/5"
-                        : "border-white/10 bg-[#0b0b0b] hover:border-white/30"
-                    }`}
+                   
+className={`flex w-full items-center justify-between gap-3 rounded-2xl border p-4 text-left text-sm transition ${
+  active
+    ? "border-emerald-500/40 bg-emerald-500/5"
+    : "border-white/10 bg-[#0b0b0b] hover:border-white/30"
+}`}
+
                   >
                     <span>{habit}</span>
                     <span
@@ -260,7 +260,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="border border-white/10 bg-[#141414] p-6">
+          <div className="sb-panel p-6">
             <p className="text-xs tracking-[0.2em] text-zinc-500">
               SYSTEM PRINCIPLE
             </p>

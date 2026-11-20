@@ -75,7 +75,7 @@ export default function WorkoutCalendar() {
     return (
       <div
         key={monthIndex}
-        className="border border-white/10 bg-[#141414] p-5"
+        className="rounded-3xl border border-white/10 bg-[#141414]/90 p-5 shadow-lg shadow-black/20 backdrop-blur-xl"
       >
         <div className="mb-5 flex items-center justify-between">
           <h4 className="text-sm font-medium">
@@ -123,7 +123,7 @@ export default function WorkoutCalendar() {
                 onClick={() => toggleWorkout(date)}
                 aria-label={`${day} de ${MONTHS[monthIndex]} de ${YEAR}`}
                 aria-pressed={active}
-                className={`aspect-square min-w-0 rounded-sm text-xs transition ${
+                className={`aspect-square min-w-0 rounded-lg text-xs transition ${
                   active
                     ? "bg-emerald-600 text-white"
                     : "bg-[#202020] text-zinc-400 hover:bg-[#363636]"
