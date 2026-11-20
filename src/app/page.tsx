@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import WorkoutCalendar from "./WorkoutCalendar";
 import SleepCalendar from "./SleepCalendar";
 import InvestmentTracker from "./InvestmentTracker";
@@ -13,6 +13,94 @@ const habits = [
 export default function Home() {
   const [completed, setCompleted] = useState<string[]>([]);
 
+  const [dashboard, setDashboard] = useState({
+    workouts: 0,
+    sleep: null as number | null,
+    invested: 0,
+  });
+
+  const refreshDashboard = useCallback(() => {
+    try {
+      const year = 2026;
+
+      const workoutData = JSON.parse(
+        localStorage.getItem(`samksboyapp-workouts-${year}`) || "[]"
+      );
+
+      const sleepData = JSON.parse(
+        localStorage.getItem(`samksboyapp-sleep-${year}`) || "{}"
+      );
+
+      const investmentData = JSON.parse(
+        localStorage.getItem(`samksboyapp-investments-${year}`) || "{}"
+      );
+
+      const workouts = Array.isArray(workoutData)
+        ? workoutData.filter(
+            (date): date is string =>
+              typeof date === "string" &&
+              date.startsWith(`${year}-`)
+          ).length
+        : 0;
+
+      const sleepValues =
+        sleepData &&
+        typeof sleepData === "object" &&
+        !Array.isArray(sleepData)
+          ? Object.values(sleepData).filter(
+              (value): value is number =>
+                typeof value === "number" &&
+                Number.isFinite(value) &&
+                value >= 0 &&
+                value <= 24
+            )
+          : [];
+
+      const averageSleep =
+        sleepValues.length > 0
+          ? sleepValues.reduce((a, b) => a + b, 0) /
+            sleepValues.length
+          : null;
+
+      const investmentValues =
+        investmentData &&
+        typeof investmentData === "object" &&
+        !Array.isArray(investmentData)
+          ? Object.values(investmentData).filter(
+              (value): value is number =>
+                typeof value === "number" &&
+                Number.isFinite(value) &&
+                value > 0
+            )
+          : [];
+
+      const invested = investmentValues.reduce(
+        (total, amount) => total + amount,
+        0
+      );
+
+      setDashboard({
+        workouts,
+        sleep: averageSleep,
+        invested,
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar indicadores:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshDashboard();
+
+    window.addEventListener("storage", refreshDashboard);
+    window.addEventListener("focus", refreshDashboard);
+
+    return () => {
+      window.removeEventListener("storage", refreshDashboard);
+      window.removeEventListener("focus", refreshDashboard);
+    };
+  }, [refreshDashboard]);
+
   function toggleHabit(habit: string) {
     setCompleted((previous) =>
       previous.includes(habit)
@@ -21,31 +109,42 @@ export default function Home() {
     );
   }
 
+ 
   const metrics = [
     {
-      label: "TREINO HOJE",
-      value: completed.includes("Treino concluído") ? "01" : "00",
-      detail: "Sessões marcadas hoje",
+      label: "TREINOS EM 2026",
+      value: String(dashboard.workouts).padStart(2, "0"),
+      detail: "Sessões registradas no ano",
     },
     {
-      label: "SONO",
-      value: "--",
-      detail: "Aguardando registro",
+      label: "SONO MÉDIO",
+      value:
+        dashboard.sleep === null
+          ? "--"
+          : `${dashboard.sleep.toFixed(1)}h`,
+      detail: "Média de horas registradas",
     },
     {
       label: "INVESTIMENTOS",
-      value: "R$ 0",
-      detail: "Aguardando registros",
+      value: new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(dashboard.invested),
+      detail: "Total de aportes em 2026",
     },
     {
       label: "DISCIPLINA",
       value: `${completed.length}/4`,
-      detail: "Hábitos concluídos",
+      detail: "Hábitos marcados nesta sessão",
     },
   ];
 
+
   return (
-    <main className="min-h-screen bg-[#090909] text-zinc-100">
+  <main
+  onClick={refreshDashboard}
+  className="min-h-screen bg-[#090909] text-zinc-100"
+>
       <div className="mx-auto max-w-7xl px-5 py-8 md:px-10">
         <header className="flex flex-wrap items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div>
