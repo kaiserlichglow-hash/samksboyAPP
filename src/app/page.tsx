@@ -1,12 +1,8 @@
 "use client";
-import Link from "next/link";
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
-import WorkoutCalendar from "./WorkoutCalendar";
-import SleepCalendar from "./SleepCalendar";
-import InvestmentTracker from "./InvestmentTracker";
-import CryptoMarket from "./CryptoMarket";
-import ForexMarket from "./ForexMarket";
-import ReminderSettings from "./ReminderSettings";
+import Link from "next/link";
 const habits = [
   "Treino concluído",
   "Sono regulado",
@@ -281,12 +277,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-<WorkoutCalendar />
-<SleepCalendar />
-<InvestmentTracker />
-<CryptoMarket />
-<ForexMarket />
-<ReminderSettings />
         <footer className="mt-12 border-t border-white/10 py-6 text-center text-xs tracking-widest text-zinc-600">
           SAMKS BOY APP — DISCIPLINE IS THE STANDARD
         </footer>
