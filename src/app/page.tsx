@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import WorkoutCalendar from "./WorkoutCalendar";
 import SleepCalendar from "./SleepCalendar";
@@ -165,6 +165,37 @@ export default function Home() {
             </p>
           </div>
         </header>
+
+        <section className="mt-8">
+          <Link
+            href="/chess"
+            className="group flex items-center justify-between gap-4 border border-white/10 bg-[#141414] p-5 transition hover:border-emerald-500/50 hover:bg-[#1a1a1a]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-white/10 bg-black text-3xl">
+                ♞
+              </div>
+
+              <div>
+                <p className="text-xs tracking-[0.2em] text-zinc-500">
+                  CHESS ARENA
+                </p>
+
+                <h3 className="mt-2 text-lg font-medium">
+                  Jogar xadrez
+                </h3>
+
+                <p className="mt-1 text-xs text-zinc-500">
+                  Desafie o computador em três níveis.
+                </p>
+              </div>
+            </div>
+
+            <span className="text-2xl text-zinc-500 transition group-hover:translate-x-1 group-hover:text-white">
+              →
+            </span>
+          </Link>
+        </section>
 
         <section className="py-12">
           <p className="text-xs tracking-[0.3em] text-zinc-500">
