@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import WorkoutCalendar from "./WorkoutCalendar";
 import SleepCalendar from "./SleepCalendar";
 import InvestmentTracker from "./InvestmentTracker";
+import CryptoMarket from "./CryptoMarket";
+import ForexMarket from "./ForexMarket";
 const habits = [
   "Treino concluído",
   "Sono regulado",
@@ -250,6 +252,8 @@ export default function Home() {
 <WorkoutCalendar />
 <SleepCalendar />
 <InvestmentTracker />
+<CryptoMarket />
+<ForexMarket />
         <footer className="mt-12 border-t border-white/10 py-6 text-center text-xs tracking-widest text-zinc-600">
           SAMKS BOY APP — DISCIPLINE IS THE STANDARD
         </footer>
